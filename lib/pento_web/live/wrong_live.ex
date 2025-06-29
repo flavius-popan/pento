@@ -6,7 +6,7 @@ defmodule PentoWeb.WrongLive do
   defp initial_assigns do
     %{
       score: 0,
-      message: "Make a guess:",
+      message: "Make a guess!",
       num_range: @num_range,
       secret_number: rand_int(@num_range),
       won_game: false,
@@ -24,7 +24,7 @@ defmodule PentoWeb.WrongLive do
     <h2>
       {@message}
       <%= if @won_game do %>
-        <.link patch={~p"/guess"} class="font-bold"> Restart</.link>
+        <.link patch={~p"/guess"} class="font-bold"> Reset</.link>
       <% end %>
     </h2>
     <br />
@@ -33,12 +33,11 @@ defmodule PentoWeb.WrongLive do
         <.link
           class={
             if n in @guesses,
-              do:
-                "bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 border border-red-700 rounded m-1",
+              do: "bg-gray-400 text-white font-bold py-2 px-4 border border-gray-400 rounded m-1",
               else:
                 "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded m-1"
           }
-          phx-click="guess"
+          phx-click={if n not in @guesses, do: "guess", else: nil}
           phx-value-number={n}
         >
           {n}
@@ -59,11 +58,9 @@ defmodule PentoWeb.WrongLive do
 
     {message, score, secret_number, won_game?, guesses} =
       if guess == secret_number do
-        {"Your guess: #{guess}. Correct! Guess again or", socket.assigns.score + 1,
-         rand_int(@num_range), true, []}
+        {"Correct! Guess again or", socket.assigns.score + 1, rand_int(@num_range), true, []}
       else
-        {"Your guess: #{guess}. Wrong. Guess again.", socket.assigns.score - 1, secret_number,
-         false, [guess | guesses]}
+        {"Wrong. Guess again.", socket.assigns.score - 1, secret_number, false, [guess | guesses]}
       end
 
     {
