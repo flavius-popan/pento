@@ -9,7 +9,7 @@ defmodule PentoWeb.WrongLive do
        score: 0,
        message: "Make a guess:",
        num_range: @num_range,
-       rand_int: rand_int(@num_range)
+       secret_number: rand_int(@num_range)
      )}
   end
 
@@ -40,13 +40,14 @@ defmodule PentoWeb.WrongLive do
   end
 
   def handle_event("guess", %{"number" => guess}, socket) do
-    {message, score, rand_int} =
-      if String.to_integer(guess) != socket.assigns.rand_int do
-        {"Your guess: #{guess}. Wrong. Guess again. ", socket.assigns.score - 1,
-         socket.assigns.rand_int}
-      else
+    secret_number = socket.assigns.secret_number
+
+    {message, score, secret_number} =
+      if String.to_integer(guess) == secret_number do
         {"Your guess: #{guess}. Correct! Guess again. ", socket.assigns.score + 1,
          rand_int(@num_range)}
+      else
+        {"Your guess: #{guess}. Wrong. Guess again. ", socket.assigns.score - 1, secret_number}
       end
 
     {
@@ -55,7 +56,7 @@ defmodule PentoWeb.WrongLive do
         socket,
         message: message,
         score: score,
-        rand_int: rand_int
+        secret_number: secret_number
       )
     }
   end
