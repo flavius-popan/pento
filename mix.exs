@@ -32,6 +32,7 @@ defmodule Pento.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:bcrypt_elixir, "~> 3.0"},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:tidewave, "~> 0.1", only: [:dev]},
       {:live_debugger, "~> 0.3", only: [:dev]},
