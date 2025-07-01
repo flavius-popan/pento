@@ -65,8 +65,7 @@ defmodule PentoWeb.Router do
     pipe_through [:browser, :require_authenticated_user]
 
     live_session :require_authenticated_user,
-      # Redundant `layout: ` because Phoenix defaults to using the `:app` layout for the inner content
-      # Still useful for learning
+      # Avoids re-rendering when using `live_redirect`
       layout: {PentoWeb.Layouts, :app},
       on_mount: [{PentoWeb.UserAuth, :ensure_authenticated}] do
       live "/users/settings", UserSettingsLive, :edit

@@ -12,6 +12,7 @@ defmodule PentoWeb.UserSettingsLiveTest do
         |> log_in_user(user_fixture())
         |> live(~p"/users/settings")
 
+      assert html =~ "Change Username"
       assert html =~ "Change Email"
       assert html =~ "Change Password"
     end
@@ -22,6 +23,63 @@ defmodule PentoWeb.UserSettingsLiveTest do
       assert {:redirect, %{to: path, flash: flash}} = redirect
       assert path == ~p"/users/log_in"
       assert %{"error" => "You must log in to access this page."} = flash
+    end
+  end
+
+  describe "update username form" do
+    setup %{conn: conn} do
+      password = valid_user_password()
+      user = user_fixture(%{password: password})
+      %{conn: log_in_user(conn, user), user: user, password: password}
+    end
+
+    test "updates the user username", %{conn: conn, password: password, user: user} do
+      new_username = unique_username()
+
+      {:ok, lv, _html} = live(conn, ~p"/users/settings")
+
+      result =
+        lv
+        |> form("#username_form", %{
+          "current_password" => password,
+          "user" => %{"username" => new_username}
+        })
+        |> render_submit()
+
+      assert result =~ "Username changed successfully"
+      assert Accounts.get_user_by_username(new_username)
+    end
+
+    test "renders errors with invalid data (username)", %{conn: conn} do
+      {:ok, lv, _html} = live(conn, ~p"/users/settings")
+
+      result =
+        lv
+        |> form("#username_form", %{
+          "current_password" => "invalid",
+          "user" => %{"username" => "us"}
+        })
+        |> render_submit()
+
+      assert result =~ "Change Username"
+      assert result =~ "should be at least 3 character"
+      assert result =~ "is not valid"
+    end
+
+    test "renders errors with duplicate username", %{conn: conn, password: password} do
+      other_user = user_fixture(%{username: "takenusername"})
+
+      {:ok, lv, _html} = live(conn, ~p"/users/settings")
+
+      result =
+        lv
+        |> form("#username_form", %{
+          "current_password" => password,
+          "user" => %{"username" => other_user.username}
+        })
+        |> render_submit()
+
+      assert result =~ "has already been taken"
     end
   end
 

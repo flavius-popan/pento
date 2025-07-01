@@ -83,3 +83,7 @@ config :phoenix_live_view,
 
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false
+
+# Used when working with code reloading and traces are not visible.
+# WARNING! This may cause some performance issues.
+config :live_debugger, :tracing_update_on_code_reload?, true

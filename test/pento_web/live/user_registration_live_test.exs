@@ -28,12 +28,19 @@ defmodule PentoWeb.UserRegistrationLiveTest do
       result =
         lv
         |> element("#registration_form")
-        |> render_change(user: %{"email" => "with spaces", "password" => "too short"})
+        |> render_change(
+          user: %{"email" => "with spaces", "password" => "too short", "username" => "a"}
+        )
 
       assert result =~ "Register"
       assert result =~ "must have the @ sign and no spaces"
       assert result =~ "should be at least 12 character"
+      assert result =~ "should be at least 3 character"
     end
+  end
+
+  describe "import unique_username/0" do
+    import Pento.AccountsFixtures, only: [unique_username: 0]
   end
 
   describe "register user" do
@@ -41,7 +48,13 @@ defmodule PentoWeb.UserRegistrationLiveTest do
       {:ok, lv, _html} = live(conn, ~p"/users/register")
 
       email = unique_user_email()
-      form = form(lv, "#registration_form", user: valid_user_attributes(email: email))
+      username = unique_username()
+
+      form =
+        form(lv, "#registration_form",
+          user: valid_user_attributes(email: email, username: username)
+        )
+
       render_submit(form)
       conn = follow_trigger_action(form, conn)
 
@@ -63,7 +76,30 @@ defmodule PentoWeb.UserRegistrationLiveTest do
       result =
         lv
         |> form("#registration_form",
-          user: %{"email" => user.email, "password" => "valid_password"}
+          user: %{
+            "email" => user.email,
+            "password" => "valid_password",
+            "username" => "newusername"
+          }
+        )
+        |> render_submit()
+
+      assert result =~ "has already been taken"
+    end
+
+    test "renders errors for duplicated username", %{conn: conn} do
+      {:ok, lv, _html} = live(conn, ~p"/users/register")
+
+      user = user_fixture(%{username: "testuser"})
+
+      result =
+        lv
+        |> form("#registration_form",
+          user: %{
+            "email" => unique_user_email(),
+            "password" => "valid_password",
+            "username" => user.username
+          }
         )
         |> render_submit()
 
