@@ -33,7 +33,7 @@ defmodule PentoWeb.UserSettingsLiveTest do
       %{conn: log_in_user(conn, user), user: user, password: password}
     end
 
-    test "updates the user username", %{conn: conn, password: password, user: user} do
+    test "updates the user username", %{conn: conn, password: password, user: _user} do
       new_username = unique_username()
 
       {:ok, lv, _html} = live(conn, ~p"/users/settings")
