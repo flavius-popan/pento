@@ -61,6 +61,10 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
+# Fixes a zed issue with lexicalLSP
+# TODO: Remove this at some point in the future
+config :phoenix_live_view, :enable_expensive_runtime_checks, false
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
